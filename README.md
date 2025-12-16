@@ -144,7 +144,46 @@ The application will start on **http://localhost:8081**
 |--------|----------|-------------|--------|
 | POST | `/api/v1/rides/{rideId}/complete` | Mark a ride as completed | USER or DRIVER |
 
-## 🧪 Testing with CURL
+## 🧪 Testing the API
+
+### Option 1: Using the Interactive Web Dashboard (Recommended for Testing)
+
+**This HTML page works on ANY machine** – just start the app and open your browser.
+
+1. Start the application:
+  ```bash
+  .\mvnw.cmd spring-boot:run
+  ```
+
+2. Open in your browser: **http://localhost:8081**
+
+3. You'll see a clean Indigo dashboard with:
+  - 📝 Register users & drivers
+  - 🔑 Login and get JWT tokens
+  - 🎫 Request rides (passenger)
+  - 📋 View pending rides (driver)
+  - ✅ Accept rides (driver)
+  - 🏁 Complete rides
+  - 🛣️ View ride history
+
+**Highlights:**
+- ✅ Responsive, mobile-friendly layout
+- ✅ Real-time API responses in a console-style output
+- ✅ Tokens auto-filled into related forms to speed testing
+- ✅ Live data persists directly to MongoDB Atlas
+
+#### Dashboard Screenshots
+
+**Identity & Access Section**  
+![Identity & Access](assets/indentity.png)
+
+**Passenger Operations**  
+![Passenger Operations](assets/passenger.png)
+
+**Driver Operations**  
+![Driver Operations](assets/driver.png)
+
+### Option 2: Using CURL (Command Line Testing)
 
 ### 1. Register a User (Passenger)
 ```bash

@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RideShare - Live API Dashboard</title>
+    <!-- Import Google Fonts: Inter for UI, JetBrains Mono for code -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- CSS VARIABLES --- */
+        :root {
+            /* Palette: Modern Indigo & Slate */
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            /* Terminal Colors */
+            --terminal-bg: #0f172a;
+            --terminal-text: #e2e8f0;
+            /* Status Colors */
+            --success: #16a34a;
+            --error: #dc2626;
+            --info: #2563eb;
+        }
+
+        /* --- RESET & BASE STYLES --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.4;
+            -webkit-font-smoothing: antialiased;
+            padding-bottom: 2rem;
+            font-size: 14px;
+        }
+
+        /* --- LAYOUT --- */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 20px;
+        }
+
+        /* --- COMPACT HEADER --- */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        header .title-group { text-align: left; }
+
+        header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.025em;
+        }
+        
+        header h1 span { color: var(--primary); }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 2px;
+        }
+
+        /* --- COMPACT INFO BANNER --- */
+        .info-banner {
+            background: #eff6ff;
+            color: #1e40af;
+            border: 1px solid #dbeafe;
+            border-left: 4px solid var(--primary);
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 24px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .info-banner strong {
+            white-space: nowrap;
+            color: var(--primary);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .section-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin: 24px 0 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* --- COMPACT GRID --- */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            align-items: start;
+        }
+
+        /* --- COMPACT CARDS --- */
+        .card {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+        }
+
+        .card:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .card h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-main);
+        }
+
+        /* --- COMPACT FORMS --- */
+        .form-group { margin-bottom: 12px; }
+
+        label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+            margin-bottom: 4px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 8px 10px;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            transition: all 0.15s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+        }
+        
+        input::placeholder, textarea::placeholder { color: #94a3b8; }
+
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+        }
+
+        .helper-text {
+            margin-top: 4px;
+            font-size: 0.7rem;
+            color: #94a3b8;
+        }
+
+        .token-input {
+            background-color: #f8fafc;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            -webkit-text-security: disc;
+            letter-spacing: 0.03em;
+        }
+
+        /* --- COMPACT BUTTONS --- */
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover { background-color: var(--primary-hover); }
+        button:active { transform: translateY(1px); }
+
+        /* --- COMPACT TERMINAL --- */
+        .output {
+            margin-top: 16px;
+            background-color: var(--terminal-bg);
+            color: var(--terminal-text);
+            padding: 12px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            line-height: 1.4;
+            min-height: 48px;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            border: 1px solid #334155;
+            position: relative;
+        }
+        
+        .output::before {
+            content: "LOGS";
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #334155;
+            color: #94a3b8;
+            font-size: 0.6rem;
+            padding: 1px 6px;
+            border-bottom-left-radius: 4px;
+            font-weight: 600;
+        }
+
+        .output::-webkit-scrollbar { width: 6px; }
+        .output::-webkit-scrollbar-track { background: var(--terminal-bg); }
+        .output::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+
+        .success { color: var(--success); }
+        .error { color: var(--error); }
+        .info { color: var(--info); }
+
+        /* --- FOOTER --- */
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+        
+        /* Grid spans for larger screens to organize flow */
+        @media (min-width: 1024px) {
+            .grid-3 { grid-template-columns: repeat(3, 1fr); }
+            .grid-2 { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* --- MOBILE RESPONSIVE --- */
+        @media (max-width: 768px) {
+            .container { padding: 16px; }
+            header { flex-direction: column; text-align: center; gap: 8px; }
+            .grid, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="title-group">
+                <h1>🚕 RideShare <span>API</span></h1>
+                <p>Live Interactive Testing Dashboard</p>
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">v1.2.0 • 🟢 System Online</div>
+        </header>
+
+        <div class="info-banner">
+            <div>
+                <strong>MongoDB Atlas Sync Active</strong>
+                <span style="display:block; font-size: 0.8rem; margin-top:2px;">All actions persist to the cloud database. No mocks.</span>
+            </div>
+        </div>
+        
+        <div class="section-title">Identity & Access</div>
+        <div class="grid grid-3">
+            <div class="card">
+                <h2>📝 Register Passenger</h2>
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="regUserUsername" placeholder="e.g. john_user">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="regUserPassword" placeholder="••••••••">
+                </div>
+                    <button onclick="registerUser()">Create Account</button>
+                <div class="output" id="regUserOutput"></div>
+            </div>
+
+            <div class="card">
+                <h2>🚗 Register Driver</h2>
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="regDriverUsername" placeholder="e.g. driver_one">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="regDriverPassword" placeholder="••••••••">
+                </div>
+                    <button onclick="registerDriver()">Create Account</button>
+                <div class="output" id="regDriverOutput"></div>
+            </div>
+
+            <div class="card">
+                <h2>🔑 Sign In</h2>
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="loginUsername" placeholder="Enter username">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••">
+                </div>
+                    <button onclick="login()">Authenticate</button>
+                <div class="output" id="loginOutput"></div>
+            </div>
+        </div>
+
+        <div class="section-title">Passenger Operations</div>
+        <div class="grid grid-3">
+            <div class="card">
+                <h2>🎫 Request Ride</h2>
+                <div class="form-group">
+                    <label>Auth Token</label>
+                    <textarea class="token-input" id="userToken" placeholder="Hidden; auto-filled" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Pickup</label>
+                    <input type="text" id="pickupLocation" placeholder="e.g. Central Park">
+                </div>
+                <div class="form-group">
+                    <label>Drop-off</label>
+                    <input type="text" id="dropLocation" placeholder="e.g. Times Square">
+                </div>
+                <button onclick="createRide()">Request</button>
+                <div class="output" id="rideOutput"></div>
+            </div>
+
+            <div class="card">
+                <h2>🛣️ History</h2>
+                <div class="form-group">
+                    <label>Auth Token</label>
+                    <textarea class="token-input" id="userTokenMyRides" placeholder="Hidden; auto-filled" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <p class="helper-text">Fetches all rides associated with this account.</p>
+                </div>
+                <button onclick="getUserRides()" style="margin-top: 24px;">Load History</button>
+                <div class="output" id="userRidesOutput"></div>
+            </div>
+
+            <div class="card">
+                <h2>🏁 Finish (User)</h2>
+                <div class="form-group">
+                    <label>Auth Token</label>
+                    <textarea class="token-input" id="completeTokenUser" placeholder="Hidden; auto-filled" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Ride ID</label>
+                    <input type="text" id="rideIdCompleteUser" placeholder="Auto-filled">
+                </div>
+                <button onclick="completeRideUser()">Mark Complete</button>
+                <div class="output" id="completeOutputUser"></div>
+            </div>
+        </div>
+
+        <div class="section-title">Driver Operations</div>
+        <div class="grid grid-3">
+            <div class="card">
+                <h2>📋 Pending Requests</h2>
+                <div class="form-group">
+                    <label>Driver Token</label>
+                    <textarea class="token-input" id="driverToken" placeholder="Hidden; auto-filled" rows="2"></textarea>
+                </div>
+                <button onclick="getPendingRides()">Check Feed</button>
+                <div class="output" id="pendingOutput"></div>
+            </div>
+
+            <div class="card">
+                <h2>✅ Accept Ride</h2>
+                <div class="form-group">
+                    <label>Driver Token</label>
+                    <textarea class="token-input" id="driverTokenAccept" placeholder="Hidden; auto-filled" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Ride ID</label>
+                    <input type="text" id="rideIdAccept" placeholder="Auto-filled from feed">
+                </div>
+                <button onclick="acceptRide()">Accept</button>
+                <div class="output" id="acceptOutput"></div>
+            </div>
+
+            <div class="card">
+                <h2>🏁 Finish (Driver)</h2>
+                <div class="form-group">
+                    <label>Driver Token</label>
+                    <textarea class="token-input" id="completeTokenDriver" placeholder="Hidden; auto-filled" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Ride ID</label>
+                    <input type="text" id="rideIdCompleteDriver" placeholder="Auto-filled">
+                </div>
+                <button onclick="completeRideDriver()">Mark Complete</button>
+                <div class="output" id="completeOutputDriver"></div>
+            </div>
+        </div>
+
+        <footer>
+            <p>💾 MongoDB Atlas • 🔐 JWT Auth • ⚡ Spring Boot Backend</p>
+        </footer>
+    </div>
+    
+    <script>
+        const API_URL = 'http://localhost:8081';
+        
+        function log(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            const timestamp = new Date().toLocaleTimeString([], { hour12: false });
+            element.innerHTML = `<span class="${type}">[${timestamp}] ${message}</span>`;
+        }
+
+        // Mask JWT so it isn't fully visible in the UI
+        function maskToken(token = '') {
+            if (!token || token.length < 12) return '(hidden)';
+            return `${token.slice(0, 6)}...${token.slice(-6)}`;
+        }
+        
+        function setUserTokens(token) {
+            document.getElementById('userToken').value = token;
+            document.getElementById('userTokenMyRides').value = token;
+            document.getElementById('completeTokenUser').value = token;
+        }
+
+        function setDriverTokens(token) {
+            document.getElementById('driverToken').value = token;
+            document.getElementById('driverTokenAccept').value = token;
+            document.getElementById('completeTokenDriver').value = token;
+        }
+
+        async function registerWithRole({ usernameId, passwordId, role, outputId }) {
+            const username = document.getElementById(usernameId).value.trim();
+            const password = document.getElementById(passwordId).value.trim();
+            const roleLabel = role === 'ROLE_USER' ? 'Passenger' : 'Driver';
+
+            if (!username || !password) {
+                log(outputId, 'Fill all fields', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password, role })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    log(outputId, `✓ Registered ${roleLabel}\nToken: ${maskToken(data.token)}`, 'success');
+                    if (role === 'ROLE_USER') {
+                        setUserTokens(data.token);
+                    } else {
+                        setDriverTokens(data.token);
+                    }
+                } else {
+                    log(outputId, `✗ Error: ${data.message || 'Failed'}`, 'error');
+                }
+            } catch (error) {
+                log(outputId, `✗ Network Error`, 'error');
+            }
+        }
+
+        function registerUser() {
+            registerWithRole({
+                usernameId: 'regUserUsername',
+                passwordId: 'regUserPassword',
+                role: 'ROLE_USER',
+                outputId: 'regUserOutput'
+            });
+        }
+
+        function registerDriver() {
+            registerWithRole({
+                usernameId: 'regDriverUsername',
+                passwordId: 'regDriverPassword',
+                role: 'ROLE_DRIVER',
+                outputId: 'regDriverOutput'
+            });
+        }
+        
+        async function login() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            
+            if (!username || !password) {
+                log('loginOutput', 'Fill all fields', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    log('loginOutput', `✓ Logged in: ${data.role}\nToken: ${maskToken(data.token)}`, 'success');
+                    if (data.role === 'ROLE_USER') {
+                        setUserTokens(data.token);
+                    } else {
+                        setDriverTokens(data.token);
+                    }
+                } else {
+                    log('loginOutput', `✗ Error: ${data.message || 'Failed'}`, 'error');
+                }
+            } catch (error) {
+                log('loginOutput', `✗ Network Error`, 'error');
+            }
+        }
+        
+        async function createRide() {
+            const token = document.getElementById('userToken').value.trim();
+            const pickupLocation = document.getElementById('pickupLocation').value.trim();
+            const dropLocation = document.getElementById('dropLocation').value.trim();
+            
+            if (!token || !pickupLocation || !dropLocation) {
+                log('rideOutput', 'Fill all fields', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/api/v1/rides`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ pickupLocation, dropLocation })
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    log('rideOutput', `✓ Created Ride #${data.id}\n${data.pickupLocation} → ${data.dropLocation}`, 'success');
+                    document.getElementById('rideIdAccept').value = data.id;
+                    document.getElementById('rideIdCompleteUser').value = data.id;
+                    document.getElementById('rideIdCompleteDriver').value = data.id;
+                } else {
+                    log('rideOutput', `✗ Error: ${data.message || 'Failed'}`, 'error');
+                }
+            } catch (error) {
+                log('rideOutput', `✗ Network Error`, 'error');
+            }
+        }
+        
+        async function getPendingRides() {
+            const token = document.getElementById('driverToken').value.trim();
+            
+            if (!token) {
+                log('pendingOutput', 'Token missing', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/api/v1/driver/rides/requests`, {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    if (Array.isArray(data) && data.length > 0) {
+                        let output = '✓ Pending:\n';
+                        data.forEach((ride, idx) => {
+                            output += `#${ride.id}: ${ride.pickupLocation} → ${ride.dropLocation}\n`;
+                            if (idx === 0) document.getElementById('rideIdAccept').value = ride.id;
+                        });
+                        log('pendingOutput', output, 'success');
+                    } else {
+                        log('pendingOutput', '✓ No pending rides', 'info');
+                    }
+                } else {
+                    log('pendingOutput', `✗ Error: ${data.message || 'Failed'}`, 'error');
+                }
+            } catch (error) {
+                log('pendingOutput', `✗ Network Error`, 'error');
+            }
+        }
+        
+        async function acceptRide() {
+            const token = document.getElementById('driverTokenAccept').value.trim();
+            const rideId = document.getElementById('rideIdAccept').value.trim();
+            
+            if (!token || !rideId) {
+                log('acceptOutput', 'Missing Token/ID', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/api/v1/driver/rides/${rideId}/accept`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    log('acceptOutput', `✓ Accepted #${data.id}\nStatus: ${data.status}`, 'success');
+                    document.getElementById('rideIdCompleteDriver').value = data.id;
+                } else {
+                    log('acceptOutput', `✗ Error: ${data.message || 'Failed'}`, 'error');
+                }
+            } catch (error) {
+                log('acceptOutput', `✗ Network Error`, 'error');
+            }
+        }
+        
+        async function completeRideUser() {
+            const token = document.getElementById('completeTokenUser').value.trim();
+            const rideId = document.getElementById('rideIdCompleteUser').value.trim();
+
+            if (!token || !rideId) {
+                log('completeOutputUser', 'Missing Token/ID', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/v1/rides/${rideId}/complete`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    log('completeOutputUser', `✓ Completed #${data.id}`, 'success');
+                    document.getElementById('rideIdCompleteDriver').value = data.id;
+                } else {
+                    log('completeOutputUser', `✗ Error: ${data.message || 'Failed'}`, 'error');
+                }
+            } catch (error) {
+                log('completeOutputUser', `✗ Network Error`, 'error');
+            }
+        }
+
+        async function completeRideDriver() {
+            const token = document.getElementById('completeTokenDriver').value.trim();
+            const rideId = document.getElementById('rideIdCompleteDriver').value.trim();
+
+            if (!token || !rideId) {
+                log('completeOutputDriver', 'Missing Token/ID', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/v1/rides/${rideId}/complete`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    log('completeOutputDriver', `✓ Completed #${data.id}`, 'success');
+                    document.getElementById('rideIdCompleteUser').value = data.id;
+                } else {
+                    log('completeOutputDriver', `✗ Error: ${data.message || 'Failed'}`, 'error');
+                }
+            } catch (error) {
+                log('completeOutputDriver', `✗ Network Error`, 'error');
+            }
+        }
+        
+        async function getUserRides() {
+            const token = document.getElementById('userTokenMyRides').value.trim();
+            
+            if (!token) {
+                log('userRidesOutput', 'Token missing', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/api/v1/user/rides`, {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    if (Array.isArray(data) && data.length > 0) {
+                        let output = '✓ History:\n';
+                        data.forEach((ride) => {
+                            output += `#${ride.id}: ${ride.pickupLocation} → ${ride.dropLocation} [${ride.status}]\n`;
+                        });
+                        log('userRidesOutput', output, 'success');
+                    } else {
+                        log('userRidesOutput', '✓ No rides found', 'info');
+                    }
+                } else {
+                    log('userRidesOutput', `✗ Error: ${data.message || 'Failed'}`, 'error');
+                }
+            } catch (error) {
+                log('userRidesOutput', `✗ Network Error`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
+        }

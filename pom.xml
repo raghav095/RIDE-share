@@ -71,12 +71,6 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<!-- Embedded MongoDB for local testing (no installation required) -->
-		<dependency>
-			<groupId>de.flapdoodle.embed</groupId>
-			<artifactId>de.flapdoodle.embed.mongo.spring30x</artifactId>
-			<version>4.9.2</version>
-		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
