@@ -43,27 +43,8 @@ Before running this application, ensure you have:
    
 2. **Maven** - Already included via Maven Wrapper (`mvnw.cmd`)
    
-3. **MongoDB** - Choose ONE of these options:
-   
-   **Option A: Embedded MongoDB (Recommended for Testing - NO Installation Required)** 🚀
-   - Automatically starts with the application
-   - Perfect for development and testing
-   - Already configured in this project!
-   
-   **Option B: MongoDB Atlas (Cloud - No Installation Required)** ☁️
-   - Free cloud MongoDB service
-   - Setup instructions below
-   
-   **Option C: Local MongoDB Installation**
-   - Download from: https://www.mongodb.com/try/download/community
-   - Start MongoDB service:
-     ```bash
-     # Windows (run as Administrator)
-     net start MongoDB
-     
-     # Or start mongod directly
-     mongod --dbpath C:\data\db
-     ```
+3. **MongoDB Atlas Account** (Cloud - No Installation Required) ☁️
+   - Free cloud MongoDB service at https://www.mongodb.com/cloud/atlas/register
 
 ## 📁 Project Structure
 
@@ -102,55 +83,34 @@ src/main/java/org/example/rideshare/
 
 ### 1. Clone the Repository
 ```bash
-git clone <repository-url>
+git clone https://github.com/raghav095/RIDE-share.git
 cd rideshare_app
 ```
 
-### 2. Configure MongoDB
-
-**Option A: Using Embedded MongoDB (Default - Already Configured!)** 🚀
-
-✅ **No configuration needed!** The project is already set up with embedded MongoDB.
-- Automatically starts when you run the application
-- No installation required
-- Perfect for testing
-
-**Option B: Using MongoDB Atlas (Cloud - No Installation)** ☁️
+### 2. Configure MongoDB Atlas
 
 1. Create a free account at https://www.mongodb.com/cloud/atlas/register
 2. Create a new cluster (M0 Free tier is sufficient)
-3. Click "Connect" → "Connect your application"
-4. Copy the connection string
-5. Edit `src/main/resources/application.properties`:
+3. Create a database user with username and password
+4. Click "Connect" → "Connect your application"
+5. Copy the connection string
+6. Edit `src/main/resources/application.properties` and add your connection string:
    ```properties
-   # Comment out the embedded MongoDB line and add:
-   spring.data.mongodb.uri=mongodb+srv://your-username:your-password@cluster0.xxxxx.mongodb.net/rideshare_db?retryWrites=true&w=majority
+   spring.data.mongodb.uri=mongodb+srv://username:password@cluster-url/springbootapplication?retryWrites=true&w=majority
    ```
-   Replace:
-   - `your-username` with your MongoDB Atlas username
-   - `your-password` with your MongoDB Atlas password
-   - `cluster0.xxxxx.mongodb.net` with your actual cluster URL
-
-6. **Add your IP address to Atlas:**
-   - In Atlas Dashboard → Network Access
-   - Click "Add IP Address"
-   - Click "Allow Access from Anywhere" (0.0.0.0/0) for development
-
-**Option C: Using Local MongoDB Installation**
-
-Edit `src/main/resources/application.properties`:
-```properties
-spring.data.mongodb.uri=mongodb://localhost:27017/rideshare_db
-```
+7. **Add your IP address to Atlas Network Access:**
+   - Atlas Dashboard → Network Access
+   - Click "Add IP Address" → "Allow Access from Anywhere" (0.0.0.0/0) for development
 
 ### 3. Build the Project
 ```bash
-mvnw clean install
+.\mvnw.cmd clean install
 ```
 
 ### 4. Run the Application
 ```bash
-mvnw spring-boot:run
+$env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-17.0.17.10-hotspot"
+.\mvnw.cmd spring-boot:run
 ```
 
 The application will start on **http://localhost:8081**
