@@ -92,25 +92,31 @@ cd rideshare_app
 1. Create a free account at https://www.mongodb.com/cloud/atlas/register
 2. Create a new cluster (M0 Free tier is sufficient)
 3. Create a database user with username and password
-4. Click "Connect" → "Connect your application"
-5. Copy the connection string
-6. Edit `src/main/resources/application.properties` and add your connection string:
-   ```properties
-   spring.data.mongodb.uri=mongodb+srv://username:password@cluster-url/springbootapplication?retryWrites=true&w=majority
-   ```
-7. **Add your IP address to Atlas Network Access:**
-   - Atlas Dashboard → Network Access
-   - Click "Add IP Address" → "Allow Access from Anywhere" (0.0.0.0/0) for development
+4. Click "Connect" → "Connect your application" and copy the connection string
+5. Add your IP to Atlas Project IP Access List (Network Access). For local dev you may use 0.0.0.0/0 (not recommended for production).
+6. Provide configuration via environment variables (loaded automatically at runtime):
+
+  - `MONGODB_URI` → your Atlas connection string
+  - `MONGODB_DATABASE` → e.g., `springbootapplication`
+  - `JWT_SECRET` → a secure random string
+  - `JWT_EXPIRATION` → token TTL in ms (default 86400000)
+  - `SERVER_PORT` → e.g., `8081`
+
+  You can set these in a `.env` file at the project root or via your shell/host environment.
 
 ### 3. Build the Project
-```bash
-.\mvnw.cmd clean install
+```powershell
+.\mvnw.cmd clean package -DskipTests
 ```
 
 ### 4. Run the Application
-```bash
-$env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-17.0.17.10-hotspot"
+```powershell
 .\mvnw.cmd spring-boot:run
+```
+
+Or run the packaged jar:
+```powershell
+java -jar .\target\rideshare-0.0.1-SNAPSHOT.jar
 ```
 
 The application will start on **http://localhost:8081**
