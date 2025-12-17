@@ -3,13 +3,11 @@ spring:
     name: rideshare_app
   data:
     mongodb:
-      # Read from env var SPRING_DATA_MONGODB_URI or fallback to MONGODB_URI
       uri: ${SPRING_DATA_MONGODB_URI:${MONGODB_URI}}
 
 server:
   port: ${SERVER_PORT:8081}
 
-# JWT configuration backed by environment variables
 jwt:
   secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION:86400000}

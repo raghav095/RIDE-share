@@ -4,15 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RideShare - Live API Dashboard</title>
-    <!-- Import Google Fonts: Inter for UI, JetBrains Mono for code -->
+ 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 
     <style>
-        /* --- CSS VARIABLES --- */
         :root {
-            /* Palette: Modern Indigo & Slate */
             --primary: #4f46e5;
             --primary-hover: #4338ca;
             --bg-body: #f8fafc;
@@ -20,16 +18,13 @@
             --text-main: #1e293b;
             --text-muted: #64748b;
             --border: #e2e8f0;
-            /* Terminal Colors */
             --terminal-bg: #0f172a;
             --terminal-text: #e2e8f0;
-            /* Status Colors */
             --success: #16a34a;
             --error: #dc2626;
             --info: #2563eb;
         }
 
-        /* --- RESET & BASE STYLES --- */
         * {
             margin: 0;
             padding: 0;
@@ -46,14 +41,12 @@
             font-size: 14px;
         }
 
-        /* --- LAYOUT --- */
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 24px 20px;
         }
 
-        /* --- COMPACT HEADER --- */
         header {
             display: flex;
             align-items: center;
@@ -80,7 +73,6 @@
             margin-top: 2px;
         }
 
-        /* --- COMPACT INFO BANNER --- */
         .info-banner {
             background: #eff6ff;
             color: #1e40af;
@@ -122,7 +114,6 @@
             background: var(--border);
         }
 
-        /* --- COMPACT GRID --- */
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -130,7 +121,6 @@
             align-items: start;
         }
 
-        /* --- COMPACT CARDS --- */
         .card {
             background: var(--bg-card);
             border-radius: 8px;
@@ -158,7 +148,6 @@
             color: var(--text-main);
         }
 
-        /* --- COMPACT FORMS --- */
         .form-group { margin-bottom: 12px; }
 
         label {
@@ -212,7 +201,6 @@
             letter-spacing: 0.03em;
         }
 
-        /* --- COMPACT BUTTONS --- */
         button {
             width: 100%;
             padding: 10px;
@@ -229,7 +217,6 @@
         button:hover { background-color: var(--primary-hover); }
         button:active { transform: translateY(1px); }
 
-        /* --- COMPACT TERMINAL --- */
         .output {
             margin-top: 16px;
             background-color: var(--terminal-bg);
@@ -269,7 +256,6 @@
         .error { color: var(--error); }
         .info { color: var(--info); }
 
-        /* --- FOOTER --- */
         footer {
             text-align: center;
             margin-top: 40px;
@@ -279,13 +265,11 @@
             font-size: 0.8rem;
         }
         
-        /* Grid spans for larger screens to organize flow */
         @media (min-width: 1024px) {
             .grid-3 { grid-template-columns: repeat(3, 1fr); }
             .grid-2 { grid-template-columns: repeat(2, 1fr); }
         }
 
-        /* --- MOBILE RESPONSIVE --- */
         @media (max-width: 768px) {
             .container { padding: 16px; }
             header { flex-direction: column; text-align: center; gap: 8px; }
@@ -456,7 +440,11 @@
             const element = document.getElementById(elementId);
             if (!element) return;
             const timestamp = new Date().toLocaleTimeString([], { hour12: false });
-            element.innerHTML = `<span class="${type}">[${timestamp}] ${message}</span>`;
+            const entry = `<div class="${type}">[${timestamp}] ${message.replace(/\n/g, '<br>')}</div>`;
+            const existing = element.innerHTML || '';
+            const combined = `${entry}${existing}`;
+            const parts = combined.split('</div>').filter(Boolean).slice(0, 12).map(p => `${p}</div>`);
+            element.innerHTML = parts.join('');
         }
 
         // Mask JWT so it isn't fully visible in the UI
@@ -496,17 +484,17 @@
 
                 const data = await response.json();
                 if (response.ok) {
-                    log(outputId, `✓ Registered ${roleLabel}\nToken: ${maskToken(data.token)}`, 'success');
+                    log(outputId, `✓ Registered ${roleLabel} (HTTP ${response.status})\nUser: ${data.username || username}\nRole: ${data.role || role}\nToken: ${maskToken(data.token)}`, 'success');
                     if (role === 'ROLE_USER') {
                         setUserTokens(data.token);
                     } else {
                         setDriverTokens(data.token);
                     }
                 } else {
-                    log(outputId, `✗ Error: ${data.message || 'Failed'}`, 'error');
+                    log(outputId, `✗ Register failed (HTTP ${response.status})\n${data.message || data.error || JSON.stringify(data)}`, 'error');
                 }
             } catch (error) {
-                log(outputId, `✗ Network Error`, 'error');
+                log(outputId, `✗ Network error: ${error?.message || error}`, 'error');
             }
         }
 
@@ -546,17 +534,17 @@
                 
                 const data = await response.json();
                 if (response.ok) {
-                    log('loginOutput', `✓ Logged in: ${data.role}\nToken: ${maskToken(data.token)}`, 'success');
+                    log('loginOutput', `✓ Logged in (HTTP ${response.status})\nUser: ${data.username || username}\nRole: ${data.role || 'N/A'}\nToken: ${maskToken(data.token)}`, 'success');
                     if (data.role === 'ROLE_USER') {
                         setUserTokens(data.token);
                     } else {
                         setDriverTokens(data.token);
                     }
                 } else {
-                    log('loginOutput', `✗ Error: ${data.message || 'Failed'}`, 'error');
+                    log('loginOutput', `✗ Login failed (HTTP ${response.status})\n${data.message || data.error || JSON.stringify(data)}`, 'error');
                 }
             } catch (error) {
-                log('loginOutput', `✗ Network Error`, 'error');
+                log('loginOutput', `✗ Network error: ${error?.message || error}`, 'error');
             }
         }
         
@@ -582,15 +570,15 @@
                 
                 const data = await response.json();
                 if (response.ok) {
-                    log('rideOutput', `✓ Created Ride #${data.id}\n${data.pickupLocation} → ${data.dropLocation}`, 'success');
+                    log('rideOutput', `✓ Created Ride #${data.id} (HTTP ${response.status})\n${data.pickupLocation} → ${data.dropLocation}\nStatus: ${data.status || 'REQUESTED'}`, 'success');
                     document.getElementById('rideIdAccept').value = data.id;
                     document.getElementById('rideIdCompleteUser').value = data.id;
                     document.getElementById('rideIdCompleteDriver').value = data.id;
                 } else {
-                    log('rideOutput', `✗ Error: ${data.message || 'Failed'}`, 'error');
+                    log('rideOutput', `✗ Create ride failed (HTTP ${response.status})\n${data.message || data.error || JSON.stringify(data)}`, 'error');
                 }
             } catch (error) {
-                log('rideOutput', `✗ Network Error`, 'error');
+                log('rideOutput', `✗ Network error: ${error?.message || error}`, 'error');
             }
         }
         
@@ -611,20 +599,20 @@
                 const data = await response.json();
                 if (response.ok) {
                     if (Array.isArray(data) && data.length > 0) {
-                        let output = '✓ Pending:\n';
+                        let output = `✓ Pending (${data.length}) (HTTP ${response.status}):\n`;
                         data.forEach((ride, idx) => {
-                            output += `#${ride.id}: ${ride.pickupLocation} → ${ride.dropLocation}\n`;
+                            output += `#${ride.id}: ${ride.pickupLocation} → ${ride.dropLocation} [${ride.status || 'REQUESTED'}]\n`;
                             if (idx === 0) document.getElementById('rideIdAccept').value = ride.id;
                         });
-                        log('pendingOutput', output, 'success');
+                        log('pendingOutput', output.trim(), 'success');
                     } else {
-                        log('pendingOutput', '✓ No pending rides', 'info');
+                        log('pendingOutput', `✓ No pending rides (HTTP ${response.status})`, 'info');
                     }
                 } else {
-                    log('pendingOutput', `✗ Error: ${data.message || 'Failed'}`, 'error');
+                    log('pendingOutput', `✗ Pending fetch failed (HTTP ${response.status})\n${data.message || data.error || JSON.stringify(data)}`, 'error');
                 }
             } catch (error) {
-                log('pendingOutput', `✗ Network Error`, 'error');
+                log('pendingOutput', `✗ Network error: ${error?.message || error}`, 'error');
             }
         }
         
@@ -645,13 +633,13 @@
                 
                 const data = await response.json();
                 if (response.ok) {
-                    log('acceptOutput', `✓ Accepted #${data.id}\nStatus: ${data.status}`, 'success');
+                    log('acceptOutput', `✓ Accepted #${data.id} (HTTP ${response.status})\nStatus: ${data.status}`, 'success');
                     document.getElementById('rideIdCompleteDriver').value = data.id;
                 } else {
-                    log('acceptOutput', `✗ Error: ${data.message || 'Failed'}`, 'error');
+                    log('acceptOutput', `✗ Accept failed (HTTP ${response.status})\n${data.message || data.error || JSON.stringify(data)}`, 'error');
                 }
             } catch (error) {
-                log('acceptOutput', `✗ Network Error`, 'error');
+                log('acceptOutput', `✗ Network error: ${error?.message || error}`, 'error');
             }
         }
         
@@ -672,13 +660,13 @@
 
                 const data = await response.json();
                 if (response.ok) {
-                    log('completeOutputUser', `✓ Completed #${data.id}`, 'success');
+                    log('completeOutputUser', `✓ Completed #${data.id} (HTTP ${response.status})\nStatus: ${data.status || 'COMPLETED'}`, 'success');
                     document.getElementById('rideIdCompleteDriver').value = data.id;
                 } else {
-                    log('completeOutputUser', `✗ Error: ${data.message || 'Failed'}`, 'error');
+                    log('completeOutputUser', `✗ Complete (user) failed (HTTP ${response.status})\n${data.message || data.error || JSON.stringify(data)}`, 'error');
                 }
             } catch (error) {
-                log('completeOutputUser', `✗ Network Error`, 'error');
+                log('completeOutputUser', `✗ Network error: ${error?.message || error}`, 'error');
             }
         }
 
@@ -699,13 +687,13 @@
 
                 const data = await response.json();
                 if (response.ok) {
-                    log('completeOutputDriver', `✓ Completed #${data.id}`, 'success');
+                    log('completeOutputDriver', `✓ Completed #${data.id} (HTTP ${response.status})\nStatus: ${data.status || 'COMPLETED'}`, 'success');
                     document.getElementById('rideIdCompleteUser').value = data.id;
                 } else {
-                    log('completeOutputDriver', `✗ Error: ${data.message || 'Failed'}`, 'error');
+                    log('completeOutputDriver', `✗ Complete (driver) failed (HTTP ${response.status})\n${data.message || data.error || JSON.stringify(data)}`, 'error');
                 }
             } catch (error) {
-                log('completeOutputDriver', `✗ Network Error`, 'error');
+                log('completeOutputDriver', `✗ Network error: ${error?.message || error}`, 'error');
             }
         }
         
@@ -726,19 +714,19 @@
                 const data = await response.json();
                 if (response.ok) {
                     if (Array.isArray(data) && data.length > 0) {
-                        let output = '✓ History:\n';
+                        let output = `✓ History (${data.length}) (HTTP ${response.status}):\n`;
                         data.forEach((ride) => {
                             output += `#${ride.id}: ${ride.pickupLocation} → ${ride.dropLocation} [${ride.status}]\n`;
                         });
-                        log('userRidesOutput', output, 'success');
+                        log('userRidesOutput', output.trim(), 'success');
                     } else {
-                        log('userRidesOutput', '✓ No rides found', 'info');
+                        log('userRidesOutput', `✓ No rides found (HTTP ${response.status})`, 'info');
                     }
                 } else {
-                    log('userRidesOutput', `✗ Error: ${data.message || 'Failed'}`, 'error');
+                    log('userRidesOutput', `✗ User rides fetch failed (HTTP ${response.status})\n${data.message || data.error || JSON.stringify(data)}`, 'error');
                 }
             } catch (error) {
-                log('userRidesOutput', `✗ Network Error`, 'error');
+                log('userRidesOutput', `✗ Network error: ${error?.message || error}`, 'error');
             }
         }
     </script>

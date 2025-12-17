@@ -38,8 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 tokenUsername = jwtUtil.extractUsername(tokenValue);
                 tokenRole = jwtUtil.extractRole(tokenValue);
-            } catch (Exception e) {
-                // token could not be parsed; let the filter chain continue
+            } catch (Exception ignored) {
             }
         }
 
